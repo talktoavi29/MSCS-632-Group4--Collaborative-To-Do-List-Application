@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Trezello — Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/app.css" />
+  <style>
+    .auth-wrap{max-width:420px;margin:12vh auto;background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px}
+    .auth-wrap h1{margin:0 0 12px}
+    .auth-wrap form{display:grid;gap:12px}
+    .auth-wrap input{background:white;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:16px}
+    .row{display:flex;gap:10px}
+    .muted{color:var(--muted);font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="auth-wrap">
+    <h1>Sign in</h1>
+    <form id="loginForm">
+      <input name="username" placeholder="Username" required />
+      <input name="password" placeholder="Password" type="password" required />
+      <div class="row">
+        <button class="primary" type="submit">Login</button>
+        <button id="go-signup" type="button" class="secondary">Need an account?</button>
+      </div>
+      <div class="muted">Admins cannot be created via signup.</div>
+    </form>
+
+    <div id="signup" style="display:none;margin-top:18px">
+      <h1>Create account</h1>
+      <form id="signupForm">
+        <input name="username" placeholder="Username" required />
+        <input name="password" placeholder="Password" type="password" required />
+        <div class="row">
+          <button class="primary" type="submit">Sign up</button>
+          <button id="go-login" type="button" class="secondary">Back to login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    async function req(path, body){
+      const r = await fetch(path, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+      const text = await r.text();
+      if (!r.ok) throw new Error((text && JSON.parse(text).error) || r.statusText);
+      return text ? JSON.parse(text) : null;
+    }
+
+    const loginForm  = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+
+    document.getElementById('go-signup').onclick = () => { document.getElementById('signup').style.display='block'; loginForm.parentElement.style.display='none'; };
+    document.getElementById('go-login').onclick  = () => { document.getElementById('signup').style.display='none'; loginForm.parentElement.style.display='block'; };
+
+    loginForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(loginForm);
+      try {
+        const user = await req('/auth/login', Object.fromEntries(fd));
+        localStorage.setItem('trezello.user', JSON.stringify(user));  // {id, username, role}
+        location.href = '/';
+      } catch (err){ alert(err.message); }
+    };
+
+    signupForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(signupForm);
+      try {
+        const user = await req('/auth/signup', Object.fromEntries(fd));
+        alert('Account created. You are now signed in.');
+        localStorage.setItem('trezello.user', JSON.stringify(user));
+        location.href = '/';
+      } catch (err){ alert(err.message); }
+    };
+  </script>
+</body>
+</html>

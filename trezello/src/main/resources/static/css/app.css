@@ -1,0 +1,110 @@
+:root{
+  /* Darker text, larger baseline */
+  --bg:#667eea;            /* page gradient base (you had blue) */
+  --bg-2:#3f63b7;
+  --panel:#6f86f0;         /* card gradient */
+  --panel-2:#4f6cd0;
+  --border:#31406e;
+
+  --text:#0c1424;          /* darker text */
+  --muted:#2b3b66;         /* darker muted */
+  --accent:#1f4fd6;        /* primary buttons */
+  --chip:#e7ebff;          /* light chip bg */
+
+  --radius:14px;
+  --shadow:0 8px 24px rgba(0,0,0,.25);
+  --base-font:18px;        /* ← bigger base */
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:linear-gradient(180deg,var(--bg),var(--bg-2) 25%,var(--bg));
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  font-size:var(--base-font);
+}
+
+/* Top bar */
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:14px 22px;border-bottom:1px solid var(--border);backdrop-filter:blur(6px)
+}
+.topbar h1{margin:0;font-size:22px;font-weight:800;letter-spacing:.2px}
+.topbar #whoami{color:var(--muted);font-size:14px}
+
+/* Three-pane layout */
+.notes-layout{
+  display:grid; grid-template-columns: 280px 420px 1fr;
+  gap:14px; max-width:1440px; margin:18px auto; padding:0 18px;
+}
+.pane{
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);
+  min-height:72vh; overflow:auto;
+}
+
+/* Users (left) */
+.users{padding:12px}
+.users .title{font-size:13px;color:var(--muted);letter-spacing:.05em;margin:2px 6px 10px}
+.list{list-style:none;margin:0;padding:0}
+.item{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;border-radius:10px;
+}
+.item:hover{background:#90a6f0}
+.item.active{background:#a6b7f6;border:1px solid var(--border)}
+.badge{
+  margin-left:auto;font-size:12px;color:var(--text);background:var(--chip);
+  padding:2px 10px;border-radius:999px;border:1px solid var(--border);font-weight:700
+}
+
+/* Tasks (center) */
+.tasks{padding:12px}
+.task{
+  padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer
+}
+.task:hover{background:#9fb2f5}   /* ← fixed stray 's' typo from your CSS */
+.task.active{background:#b4c2fb}
+.task .t1{font-weight:800;font-size:19px}
+.task .t2{font-size:14px;color:var(--muted)}
+.task .chips{display:flex;gap:8px;margin-top:8px}
+.chip{
+  font-size:12px;border:1px solid var(--border);background:var(--chip);
+  padding:3px 10px;border-radius:999px;color:#243b7b;font-weight:700
+}
+
+/* Details (right) */
+.detail{padding:20px}
+.detail h2{margin:.2rem 0 0;font-size:24px;font-weight:900}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:12px 16px;margin-top:14px}
+.k{color:var(--muted);font-size:14px}
+.v{font-size:16px}
+.meta{display:flex;gap:10px;margin-top:12px}
+
+.btns{display:flex;gap:10px;margin-top:18px}
+button{
+  background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:12px;
+  font-weight:800;cursor:pointer;font-size:16px
+}
+button.secondary{background:#3a4c87}
+button.danger{background:#cf2c2c}
+
+/* Forms */
+.form { display:flex; gap:10px; align-items:center; margin:10px 0 14px; }
+.form input, .form textarea, .form select {
+  background:white;color:var(--text);
+  border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:16px;
+}
+.form-grid { display:grid; grid-template-columns: 140px 1fr; gap:12px 16px; }
+.form-grid input, .form-grid textarea, .form-grid select { width:100%; }
+button.primary { background: var(--accent); }
+
+/* Empty states */
+.empty{ padding:18px;color:var(--muted);font-style:italic;font-size:16px }
+
+/* Responsive */
+@media (max-width: 1100px){
+  .notes-layout{grid-template-columns:240px 1fr}
+  .pane.detail{display:none}
+}

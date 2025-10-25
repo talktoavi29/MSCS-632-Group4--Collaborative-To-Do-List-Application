@@ -1,0 +1,14 @@
+[
+  {
+    "id": "68f31e79-2c2b-4f15-a421-f08e26ff25af",
+    "username": "Abhishek",
+    "role": "ADMIN",
+    "passwordHash": "$2b$10$B6IrXtYbbD6bIdr3jjj06.jzxPRIqpqiuzaSewFiSRG80L4oYk5PG"
+  },
+  {
+    "id": "a51eba5d-db11-4a35-99d2-e35b04796b88",
+    "username": "Aaradhya",
+    "role": "USER",
+    "passwordHash": "$2b$10$1Cw8/Us7/Wau0y4G0tRnCuufEc6EJfg7vMQQwpRxZDV31L.p7MIvK"
+  }
+]

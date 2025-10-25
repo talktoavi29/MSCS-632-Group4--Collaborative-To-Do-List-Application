@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Trezello — Tasks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Trezello</h1>
+    <span id="whoami"></span>
+  </header>
+
+  <!-- JS renders three panes (users · tasks+create · detail/edit) into #app -->
+  <main id="app" class="notes-layout">Loading…</main>
+
+  <!-- ES modules (compiled TS) -->
+  <script type="module">
+    import { State } from './js/state.js';
+    import './js/app.js';
+    window.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('whoami');
+      if (el) el.textContent = `User: ${State.currentUser.id} • Role: ${State.currentUser.role}`;
+    });
+  </script>
+</body>
+</html>
