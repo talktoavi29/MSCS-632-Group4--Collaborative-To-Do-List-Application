@@ -89,7 +89,6 @@ export const UI = {
             };
         }
     },
-    // ---------- pieces ----------
     userItem(u) {
         const active = u.id === State.selectedUserId ? 'active' : '';
         return `<li class="item ${active}" data-id="${u.id}">

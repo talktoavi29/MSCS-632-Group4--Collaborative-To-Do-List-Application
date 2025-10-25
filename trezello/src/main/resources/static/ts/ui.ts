@@ -114,8 +114,6 @@ export const UI = {
     }
   },
 
-  // ---------- pieces ----------
-
   userItem(u: User){
     const active = u.id === State.selectedUserId ? 'active' : '';
     return `<li class="item ${active}" data-id="${u.id}">
