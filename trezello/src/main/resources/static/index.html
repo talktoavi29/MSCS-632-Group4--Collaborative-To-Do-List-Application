@@ -1,60 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trezello - Dashboard</title>
-    <link rel="stylesheet" href="css/simple-style.css">
+  <meta charset="utf-8" />
+  <title>Trezello — Tasks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
-    <div class="app">
-        <!-- Header -->
-        <header class="header">
-            <h1>Trezello</h1>
-            <div class="user-info">
-                <span id="userName"></span>
-                <span id="userRole" class="badge"></span>
-                <button id="logoutBtn" class="btn-secondary">Logout</button>
-            </div>
-        </header>
-        
-        <!-- Main Content -->
-        <main class="main">
-            <div class="toolbar">
-                <h2>My Tasks</h2>
-                <button id="newTaskBtn" class="btn-primary">+ New Task</button>
-            </div>
-            
-            <div id="taskList" class="task-list"></div>
-        </main>
+  <header class="topbar">
+    <h1>Trezello</h1>
+    <div class="env">
+      <!-- Optional: simple “who am I” banner (comes from State in JS) -->
+      <span id="whoami" title="Current user/role shown by JS"></span>
     </div>
-    
-    <!-- Task Modal -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle">New Task</h2>
-            <form id="taskForm" class="form">
-                <input type="hidden" id="taskId">
-                <input type="hidden" id="taskVersion">
-                
-                <input type="text" id="taskTitle" placeholder="Task title" required>
-                <textarea id="taskDescription" placeholder="Description (optional)" rows="3"></textarea>
-                <input type="text" id="taskCategory" placeholder="Category" required>
-                
-                <select id="taskStatus">
-                    <option value="PENDING">Pending</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="COMPLETED">Done</option>
-                </select>
-                
-                <div class="modal-buttons">
-                    <button type="button" id="cancelTask" class="btn-secondary">Cancel</button>
-                    <button type="submit" class="btn-primary">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <script type="module" src="js/app.js"></script>
+  </header>
+
+  <main class="container">
+    <!-- JS renders everything inside #app -->
+    <div id="app" class="card">Loading…</div>
+  </main>
+
+  <footer class="footer">
+    <small>© 2025 Trezello (demo)</small>
+  </footer>
+
+  <!-- ES modules: app.js imports api/state/ui automatically -->
+  <script type="module">
+    // Optional helper to surface current user info from State after JS loads
+    import { State } from './js/state.js';
+    import './js/app.js'; // bootstraps App
+
+    // Paint the whoami banner once TS modules load.
+    window.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('whoami');
+      if (el) el.textContent = `User: ${State.currentUser.id} • Role: ${State.currentUser.role}`;
+    });
+  </script>
 </body>
 </html>
