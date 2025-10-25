@@ -1,7 +1,7 @@
 import type { Task, User, Status, Role } from './types.js';
 
 export const State = {
-  currentUser: { id: 'REPLACE_WITH_REAL_ID', role: 'USER' as Role },
+  currentUser: { id: '68f31e79-2c2b-4f15-a421-f08e26ff25af', role: 'ADMIN' as Role },
   users: [] as User[],
   tasks: [] as Task[],
   filters: { status: '' as '' | Status, category: '', assigneeId: '' },
