@@ -3,6 +3,10 @@ import { State } from './state.js';
 import { UI } from './ui.js';
 const App = {
     async init() {
+        if (!State.currentUser || !State.currentUser.id) {
+            window.location.href = '/login.html';
+            return;
+        }
         UI.mount(document.getElementById('app'));
         // wire handlers
         UI.handlers.selectUser = id => this.onSelectUser(id);
@@ -60,7 +64,6 @@ const App = {
         try {
             await API.updateTask(id, body);
             await this.loadTasksFor(State.selectedUserId);
-            // keep same selection (id may still exist; if deleted in race, the list will drop it)
             State.selectTask(id);
             UI.render();
         }
@@ -97,7 +100,6 @@ const App = {
         try {
             await API.deleteTask(id);
             await this.loadTasksFor(State.selectedUserId);
-            // if you deleted the selected task, clear the detail pane
             if (State.selectedTaskId === id)
                 State.selectTask('');
             UI.render();

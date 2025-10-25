@@ -5,6 +5,10 @@ import type { Status } from './types.js';
 
 const App = {
   async init(){
+     if (!State.currentUser || !State.currentUser.id) {
+      window.location.href = '/login.html';
+      return; 
+    }
     UI.mount(document.getElementById('app')!);
 
     // wire handlers
@@ -71,7 +75,6 @@ const App = {
     try {
       await API.updateTask(id, body);
       await this.loadTasksFor(State.selectedUserId);
-      // keep same selection (id may still exist; if deleted in race, the list will drop it)
       State.selectTask(id);
       UI.render();
     } catch (e:any) {
@@ -106,7 +109,6 @@ const App = {
     try {
       await API.deleteTask(id);
       await this.loadTasksFor(State.selectedUserId);
-      // if you deleted the selected task, clear the detail pane
       if (State.selectedTaskId === id) State.selectTask('');
       UI.render();
     } catch (e:any) {

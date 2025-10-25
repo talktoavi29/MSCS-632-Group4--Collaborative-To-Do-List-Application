@@ -108,18 +108,20 @@ export const UI = {
     </div>`;
     },
     createForm(defaultAssignee, isAdmin) {
-        // Admin can pick any assignee (selected user by default). User will only ever see themselves in the left list anyway.
+        const assigneeCtrl = isAdmin
+            ? `<select name="assigneeId">
+         ${State.users.map(u => `<option value="${u.id}" ${u.id === defaultAssignee ? 'selected' : ''}>${u.username}</option>`).join('')}
+       </select>`
+            : `<input name="assigneeId" type="hidden" value="${defaultAssignee}" />`;
         return `
-      <form id="create-task-form" class="form">
-        <input name="title" placeholder="New task title" required />
-        <input name="category" placeholder="Category" />
-        <input name="description" placeholder="Description" />
-        ${isAdmin
-            ? `<input name="assigneeId" placeholder="Assignee ID" value="${defaultAssignee}" />`
-            : `<input name="assigneeId" type="hidden" value="${defaultAssignee}" />`}
-        <button class="primary">Create</button>
-      </form>
-    `;
+    <form id="create-task-form" class="form">
+      <input name="title" placeholder="New task title" required />
+      <input name="category" placeholder="Category" />
+      <input name="description" placeholder="Description" />
+      ${assigneeCtrl}
+      <button class="primary">Create</button>
+    </form>
+  `;
     },
     taskDetail(t, isAdmin) {
         // Admins can edit assignee; Users cannot (server also enforces)
