@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Trezello — Notes-style UI</title>
+  <title>Trezello — Tasks</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
@@ -12,17 +12,16 @@
     <span id="whoami"></span>
   </header>
 
-  <main id="app" class="notes-layout">
-    <!-- JS renders three panes here -->
-  </main>
+  <!-- JS renders three panes (users · tasks+create · detail/edit) into #app -->
+  <main id="app" class="notes-layout">Loading…</main>
 
-  <!-- ES modules (TypeScript compiled to JS) -->
+  <!-- ES modules (compiled TS) -->
   <script type="module">
     import { State } from './js/state.js';
     import './js/app.js';
     window.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById('whoami');
-      el.textContent = `User: ${State.currentUser.id} • Role: ${State.currentUser.role}`;
+      if (el) el.textContent = `User: ${State.currentUser.id} • Role: ${State.currentUser.role}`;
     });
   </script>
 </body>
