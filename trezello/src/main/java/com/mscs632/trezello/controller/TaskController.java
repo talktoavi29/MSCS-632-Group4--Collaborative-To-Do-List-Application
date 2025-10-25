@@ -17,10 +17,12 @@ public class TaskController {
     private UserRole role(String r) { return UserRole.valueOf(r.toUpperCase()); }
 
     @GetMapping
-    public List<Task> list(@RequestParam(required=false) String status,
+    public List<Task> list(@RequestHeader("X-User-Id") String userId,
+                           @RequestHeader("X-Role") String role,
+                           @RequestParam(required=false) String status,
                            @RequestParam(required=false) String category,
                            @RequestParam(required=false) String assigneeId) {
-        return service.list(status, category, assigneeId);
+        return service.list(status, category, assigneeId, userId, UserRole.valueOf(role.toUpperCase()));
     }
 
     @PostMapping
