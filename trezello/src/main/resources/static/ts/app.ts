@@ -1,44 +1,51 @@
 import { API } from './api.js';
 import { State } from './state.js';
 import { UI } from './ui.js';
-import type { UpdateTask } from './types.js';
 
 const App = {
-  async init() {
+  async init(){
     UI.mount(document.getElementById('app')!);
-    UI.handlers.create = body => this.createTask(body);
-    UI.handlers.update = (id, body: UpdateTask) => this.updateTask(id, body);
-    UI.handlers.complete = (id, v) => this.completeTask(id, v);
-    UI.handlers.filter = f => { State.setFilters(f); this.refresh(); };
-    await this.refresh();
+    UI.handlers.selectUser = (userId) => this.onSelectUser(userId);
+    UI.handlers.selectTask = (taskId) => this.onSelectTask(taskId);
+
+    await this.loadUsers();
+
+    // If non-admin, auto-select yourself
+    if (State.currentUser.role === 'USER') {
+      State.selectUser(State.currentUser.id);
+      await this.loadTasksFor(State.currentUser.id);
+    }
+
+    UI.render();
   },
 
-  async refresh(conflict = false) {
+  async loadUsers(){
     try {
-      const tasks = await API.listTasks(State.filters);
+      const users = await API.listUsers();
+      State.setUsers(users);
+    } catch (e:any) {
+      alert(e.message || 'Failed to load users');
+    }
+  },
+
+  async loadTasksFor(userId: string){
+    try {
+      const tasks = await API.listTasks({ assigneeId: userId });
       State.setTasks(tasks);
-      UI.render(conflict);
-    } catch (e: any) { alert(e.message || 'Failed to load tasks'); }
-  },
-
-  async createTask(body: any) {
-    body.assigneeId ||= State.currentUser.id;
-    try { await API.createTask(body); await this.refresh(); }
-    catch (e: any) { alert(e.message); }
-  },
-
-  async updateTask(id: string, body: UpdateTask) {
-    try { await API.updateTask(id, body); await this.refresh(); }
-    catch (e: any) {
-      if (e.status === 409) await this.refresh(true); else alert(e.message);
+    } catch (e:any) {
+      alert(e.message || 'Failed to load tasks');
     }
   },
 
-  async completeTask(id: string, version: number) {
-    try { await API.completeTask(id, version); await this.refresh(); }
-    catch (e: any) {
-      if (e.status === 409) await this.refresh(true); else alert(e.message);
-    }
+  async onSelectUser(userId: string){
+    State.selectUser(userId);
+    await this.loadTasksFor(userId);
+    UI.render();
+  },
+
+  onSelectTask(taskId: string){
+    State.selectTask(taskId);
+    UI.render();
   }
 };
 

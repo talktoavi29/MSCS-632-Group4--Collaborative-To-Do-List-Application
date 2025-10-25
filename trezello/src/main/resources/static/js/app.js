@@ -4,55 +4,42 @@ import { UI } from './ui.js';
 const App = {
     async init() {
         UI.mount(document.getElementById('app'));
-        UI.handlers.create = body => this.createTask(body);
-        UI.handlers.update = (id, body) => this.updateTask(id, body);
-        UI.handlers.complete = (id, v) => this.completeTask(id, v);
-        UI.handlers.filter = f => { State.setFilters(f); this.refresh(); };
-        await this.refresh();
+        UI.handlers.selectUser = (userId) => this.onSelectUser(userId);
+        UI.handlers.selectTask = (taskId) => this.onSelectTask(taskId);
+        await this.loadUsers();
+        // If non-admin, auto-select yourself
+        if (State.currentUser.role === 'USER') {
+            State.selectUser(State.currentUser.id);
+            await this.loadTasksFor(State.currentUser.id);
+        }
+        UI.render();
     },
-    async refresh(conflict = false) {
+    async loadUsers() {
         try {
-            const tasks = await API.listTasks(State.filters);
+            const users = await API.listUsers();
+            State.setUsers(users);
+        }
+        catch (e) {
+            alert(e.message || 'Failed to load users');
+        }
+    },
+    async loadTasksFor(userId) {
+        try {
+            const tasks = await API.listTasks({ assigneeId: userId });
             State.setTasks(tasks);
-            UI.render(conflict);
         }
         catch (e) {
             alert(e.message || 'Failed to load tasks');
         }
     },
-    async createTask(body) {
-        body.assigneeId || (body.assigneeId = State.currentUser.id);
-        try {
-            await API.createTask(body);
-            await this.refresh();
-        }
-        catch (e) {
-            alert(e.message);
-        }
+    async onSelectUser(userId) {
+        State.selectUser(userId);
+        await this.loadTasksFor(userId);
+        UI.render();
     },
-    async updateTask(id, body) {
-        try {
-            await API.updateTask(id, body);
-            await this.refresh();
-        }
-        catch (e) {
-            if (e.status === 409)
-                await this.refresh(true);
-            else
-                alert(e.message);
-        }
-    },
-    async completeTask(id, version) {
-        try {
-            await API.completeTask(id, version);
-            await this.refresh();
-        }
-        catch (e) {
-            if (e.status === 409)
-                await this.refresh(true);
-            else
-                alert(e.message);
-        }
+    onSelectTask(taskId) {
+        State.selectTask(taskId);
+        UI.render();
     }
 };
 window.addEventListener('DOMContentLoaded', () => App.init());

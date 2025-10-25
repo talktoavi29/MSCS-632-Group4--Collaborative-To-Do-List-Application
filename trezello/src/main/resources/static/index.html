@@ -2,38 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Trezello — Tasks</title>
+  <title>Trezello — Notes-style UI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <header class="topbar">
     <h1>Trezello</h1>
-    <div class="env">
-      <!-- Optional: simple “who am I” banner (comes from State in JS) -->
-      <span id="whoami" title="Current user/role shown by JS"></span>
-    </div>
+    <span id="whoami"></span>
   </header>
 
-  <main class="container">
-    <!-- JS renders everything inside #app -->
-    <div id="app" class="card">Loading…</div>
+  <main id="app" class="notes-layout">
+    <!-- JS renders three panes here -->
   </main>
 
-  <footer class="footer">
-    <small>© 2025 Trezello (demo)</small>
-  </footer>
-
-  <!-- ES modules: app.js imports api/state/ui automatically -->
+  <!-- ES modules (TypeScript compiled to JS) -->
   <script type="module">
-    // Optional helper to surface current user info from State after JS loads
     import { State } from './js/state.js';
-    import './js/app.js'; // bootstraps App
-
-    // Paint the whoami banner once TS modules load.
+    import './js/app.js';
     window.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById('whoami');
-      if (el) el.textContent = `User: ${State.currentUser.id} • Role: ${State.currentUser.role}`;
+      el.textContent = `User: ${State.currentUser.id} • Role: ${State.currentUser.role}`;
     });
   </script>
 </body>

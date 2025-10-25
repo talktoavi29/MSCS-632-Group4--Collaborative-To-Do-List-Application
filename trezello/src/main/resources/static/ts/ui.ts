@@ -1,89 +1,94 @@
-import type { Status, Task } from './types.js';
 import { State } from './state.js';
+import type { Task, User } from './types.js';
 
 type Handlers = {
-  create?: (body: { title: string; category: string; description?: string; assigneeId: string }) => void;
-  update?: (id: string, body: any) => void;
-  complete?: (id: string, version: number) => void;
-  del?: (id: string) => void;
-  filter?: (f: { status?: '' | Status; category?: string }) => void;
+  selectUser?: (userId: string) => void;
+  selectTask?: (taskId: string) => void;
 };
 
 export const UI = {
   root: null as HTMLElement | null,
   handlers: {} as Handlers,
 
-  mount(el: HTMLElement) { this.root = el; },
+  mount(el: HTMLElement){ this.root = el; },
 
-  render(conflict = false) {
+  render(){
     if (!this.root) return;
-    const isAdmin = State.currentUser.role === 'ADMIN';
-    const rows = State.tasks.map(t => this.row(t, isAdmin)).join('');
-    const banner = conflict ? `<div class="banner">Task changed on server. Reloaded latest.</div>` : '';
     this.root.innerHTML = `
-      ${banner}
-      <section class="filters">
-        <label>Status <input id="f-status" value="${State.filters.status || ''}"></label>
-        <label>Category <input id="f-category" value="${State.filters.category || ''}"></label>
-        <button id="apply">Apply</button>
+      <aside class="pane users">
+        <div class="title">USERS</div>
+        <ul class="list">
+          ${State.users.map(u => this.userItem(u)).join('')}
+        </ul>
+      </aside>
+
+      <section class="pane tasks">
+        ${State.selectedUser ? this.taskList(State.selectedUser) : `<div class="empty">Select a user to view tasks.</div>`}
       </section>
-      <section class="create">
-        <form id="create">
-          <input name="title" placeholder="Title" required>
-          <input name="category" placeholder="Category">
-          <input name="description" placeholder="Description">
-          <input name="assigneeId" placeholder="Assignee ID" value="${State.currentUser.id}">
-          <button>Add</button>
-        </form>
+
+      <section class="pane detail">
+        ${State.selectedTask ? this.taskDetail(State.selectedTask) : `<div class="empty">Select a task to view details.</div>`}
       </section>
-      <table>
-        <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Assignee</th><th>Actions</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
     `;
 
-     this.root.querySelector<HTMLButtonElement>('#apply')!.onclick = () => {
-      const raw = (this.root!.querySelector<HTMLInputElement>('#f-status')!.value || '').toUpperCase();
-      const status: '' | Status =
-        raw === 'PENDING' || raw === 'IN_PROGRESS' || raw === 'COMPLETED' ? (raw as Status) : '';
-      const category = this.root!.querySelector<HTMLInputElement>('#f-category')!.value || '';
-      this.handlers.filter?.({ status, category: category || undefined });
-    };
+    // Bind user clicks
+    this.root.querySelectorAll<HTMLLIElement>('.users .item').forEach(li => {
+      li.onclick = () => this.handlers.selectUser?.(li.dataset.id!);
+    });
 
-    this.root.querySelector<HTMLFormElement>('#create')!.onsubmit = (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target as HTMLFormElement);
-      this.handlers.create?.(Object.fromEntries(fd) as any);
-      (e.target as HTMLFormElement).reset();
-    };
-
-    this.root.querySelectorAll<HTMLTableRowElement>('tbody tr').forEach(tr => {
-      const id = tr.dataset.id!;
-      tr.querySelector<HTMLButtonElement>('.edit')!.onclick = () => {
-        const t = State.tasks.find(x => x.id === id)!;
-        this.handlers.update?.(id, { title: t.title + ' *', description: t.description, category: t.category,
-                                     assigneeId: t.assigneeId, status: t.status, version: t.version });
-      };
-      tr.querySelector<HTMLButtonElement>('.done')!.onclick = () => {
-        const t = State.tasks.find(x => x.id === id)!;
-        this.handlers.complete?.(id, t.version);
-      };
-      const del = tr.querySelector<HTMLButtonElement>('.del');
-      if (del) del.onclick = () => this.handlers.del?.(id);
+    // Bind task clicks
+    this.root.querySelectorAll<HTMLDivElement>('.task').forEach(div => {
+      div.onclick = () => this.handlers.selectTask?.(div.dataset.id!);
     });
   },
 
-  row(t: Task, isAdmin: boolean) {
-    return `<tr data-id="${t.id}">
-        <td>${t.title}</td>
-        <td>${t.category}</td>
-        <td>${t.status}</td>
-        <td>${t.assigneeId}</td>
-        <td>
-          <button class="edit">Edit</button>
-          <button class="done">Done</button>
-          ${isAdmin ? '<button class="del">Delete</button>' : ''}
-        </td>
-      </tr>`;
+  userItem(u: User){
+    const active = u.id === State.selectedUserId ? 'active' : '';
+    return `<li class="item ${active}" data-id="${u.id}">
+      <span>${u.username}</span>
+      <span class="badge">${u.role}</span>
+    </li>`;
+  },
+
+  taskList(user: User){
+    if (!State.tasks.length) return `<div class="empty">No tasks for ${user.username}.</div>`;
+    const items = State.tasks.map(t => this.taskItem(t)).join('');
+    return `<div class="title">TASKS — ${user.username}</div>
+            <div class="list-tasks">${items}</div>`;
+  },
+
+  taskItem(t: Task){
+    const active = t.id === State.selectedTaskId ? 'active' : '';
+    return `<div class="task ${active}" data-id="${t.id}">
+      <div class="t1">${t.title}</div>
+      <div class="t2">${t.category} • ${t.status}</div>
+      <div class="chips">
+        <span class="chip">v${t.version}</span>
+        <span class="chip">${new Date(t.updatedAt).toLocaleString()}</span>
+      </div>
+    </div>`;
+  },
+
+  taskDetail(t: Task){
+    return `
+      <div class="detail">
+        <h2>${t.title}</h2>
+        <div class="meta">
+          <span class="chip">${t.status}</span>
+          <span class="chip">Category: ${t.category}</span>
+          <span class="chip">Assignee: ${t.assigneeId}</span>
+          <span class="chip">v${t.version}</span>
+        </div>
+        <div class="kv">
+          <div class="k">Description</div><div class="v">${t.description ?? '-'}</div>
+          <div class="k">Created</div><div class="v">${new Date(t.createdAt).toLocaleString()}</div>
+          <div class="k">Updated</div><div class="v">${new Date(t.updatedAt).toLocaleString()}</div>
+          <div class="k">ID</div><div class="v">${t.id}</div>
+        </div>
+        <div class="btns">
+          <!-- actions can be added later (complete/delete) -->
+        </div>
+      </div>
+    `;
   }
 };
