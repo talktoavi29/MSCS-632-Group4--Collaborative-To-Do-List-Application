@@ -24,7 +24,6 @@ public class TaskService {
     }
 
     public Task create(CreateTaskRequest req, String actorId, UserRole role) {
-        // Regular users can only create for themselves
         if (role == UserRole.USER && !Objects.equals(actorId, req.assigneeId()))
             throw new ForbiddenException("Users can only create tasks for themselves");
         Task t = new Task();
@@ -42,10 +41,8 @@ public class TaskService {
 
     public Task update(String id, UpdateTaskRequest req, String actorId, UserRole role) {
         Task cur = store.findById(id).orElseThrow(() -> new NotFoundException("Task not found"));
-        // Ownership check
         if (role == UserRole.USER && !Objects.equals(actorId, cur.getAssigneeId()))
             throw new ForbiddenException("Users can only modify their tasks");
-        // Optimistic concurrency
         if (cur.getVersion() != req.version())
             throw new ConflictException("Version mismatch. Reload and retry.");
         cur.setTitle(req.title());

@@ -11,11 +11,18 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService service;
-    public UserController(UserService service) { this.service = service; }
+    public UserController(UserService service) {
+        this.service = service;
+    }
 
     @PostMapping
-    public User create(@Valid @RequestBody CreateUserRequest req) { return service.create(req); }
+    public User create(@Valid @RequestBody CreateUserRequest req)
+    {
+        return service.create(req);
+    }
 
     @GetMapping
-    public List<User> list() { return service.list(); }
+    public List<User> list() {
+        return service.list();
+    }
 }
