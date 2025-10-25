@@ -1,5 +1,3 @@
-// import type { Task, User, CreateTask, UpdateTask } from './types.js';
-// import { State } from './state.js';
 import { State } from './state.js';
 async function request(method, path, body) {
     const { id, role } = State.currentUser;

@@ -1,14 +1,4 @@
 [ {
-  "id" : "d41a0f70-6f29-47ef-8f58-357a959c2ce1",
-  "title" : "Build Backend",
-  "description" : "Day 2 Development",
-  "status" : "IN_PROGRESS",
-  "category" : "Work",
-  "assigneeId" : "68f31e79-2c2b-4f15-a421-f08e26ff25af",
-  "version" : 4,
-  "createdAt" : "2025-10-25T16:34:24.958813700Z",
-  "updatedAt" : "2025-10-25T18:01:42.854567100Z"
-}, {
   "id" : "fab6e747-7535-43a3-a05a-bd5fc15d5537",
   "title" : "Study Math",
   "description" : "Kids Duty",
@@ -18,4 +8,24 @@
   "version" : 1,
   "createdAt" : "2025-10-25T16:48:11.330382Z",
   "updatedAt" : "2025-10-25T16:48:11.330382Z"
+}, {
+  "id" : "1d421bbb-77a5-486d-a6b7-78a1daca1c06",
+  "title" : "Build Backend",
+  "description" : "Day 2 Development",
+  "status" : "PENDING",
+  "category" : "Work",
+  "assigneeId" : "68f31e79-2c2b-4f15-a421-f08e26ff25af",
+  "version" : 1,
+  "createdAt" : "2025-10-25T22:21:58.013673800Z",
+  "updatedAt" : "2025-10-25T22:21:58.013673800Z"
+}, {
+  "id" : "39266322-93fc-4519-a80b-cb3520b3a792",
+  "title" : "Play Basketball",
+  "description" : "Its good for kids to play",
+  "status" : "PENDING",
+  "category" : "Exercise",
+  "assigneeId" : "a51eba5d-db11-4a35-99d2-e35b04796b88",
+  "version" : 1,
+  "createdAt" : "2025-10-25T22:28:44.566979600Z",
+  "updatedAt" : "2025-10-25T22:28:44.566979600Z"
 } ]

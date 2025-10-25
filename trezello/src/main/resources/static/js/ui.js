@@ -32,18 +32,15 @@ export const UI = {
         ${selectedTask ? this.taskDetail(selectedTask, isAdmin) : `<div class="empty">Select a task to view details.</div>`}
       </section>
     `;
-        // User clicks
         this.root.querySelectorAll('.users .item').forEach(li => {
             li.onclick = () => this.handlers.selectUser?.(li.dataset.id);
         });
-        // Create form submit
         const cf = this.root.querySelector('#create-task-form');
         if (cf) {
             cf.onsubmit = e => {
                 e.preventDefault();
                 const fd = new FormData(cf);
                 const body = Object.fromEntries(fd);
-                // title, category, description?, assigneeId
                 this.handlers.createTask?.({
                     title: (body.title || '').trim(),
                     category: (body.category || '').trim(),
@@ -53,11 +50,9 @@ export const UI = {
                 cf.reset();
             };
         }
-        // Task clicks
         this.root.querySelectorAll('.task').forEach(div => {
             div.onclick = () => this.handlers.selectTask?.(div.dataset.id);
         });
-        // Detail form actions
         const ef = this.root.querySelector('#edit-task-form');
         if (ef) {
             ef.onsubmit = e => {
@@ -150,7 +145,7 @@ export const UI = {
 
           <label>Status</label>
           <select name="status" value="${t.status}">
-            ${['PENDING', 'IN_PROGRESS', 'DONE'].map(s => `<option value="${s}" ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}
+            ${['PENDING', 'IN_PROGRESS', 'COMPLETED'].map(s => `<option value="${s}" ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
 
           <label>Assignee</label>
@@ -158,7 +153,7 @@ export const UI = {
 
           <div class="btns">
             <button class="primary" type="submit">Save</button>
-            <button id="btn-complete" type="button" class="secondary" data-id="${t.id}" data-version="${t.version}">Mark Done</button>
+            <button id="btn-complete" type="button" class="secondary" data-id="${t.id}" data-version="${t.version}">Mark Completed</button>
             ${isAdmin ? `<button id="btn-delete" type="button" class="danger" data-id="${t.id}">Delete</button>` : ''}
           </div>
         </form>

@@ -1,5 +1,5 @@
 export type Role = 'ADMIN' | 'USER';
-export type Status = 'PENDING' | 'IN_PROGRESS' | 'DONE';
+export type Status = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
 
 export interface User { id:string; username:string; role:Role; }
 export interface Task {
