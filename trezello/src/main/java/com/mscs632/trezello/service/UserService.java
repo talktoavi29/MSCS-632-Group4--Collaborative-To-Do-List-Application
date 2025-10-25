@@ -2,6 +2,7 @@ package com.mscs632.trezello.service;
 
 import com.mscs632.trezello.dto.CreateUserRequest;
 import com.mscs632.trezello.exception.BadRequestException;
+import com.mscs632.trezello.exception.NotFoundException;
 import com.mscs632.trezello.model.User;
 import com.mscs632.trezello.model.UserRole;
 import com.mscs632.trezello.store.UserStore;
@@ -24,5 +25,10 @@ public class UserService {
         return store.save(u);
     }
 
-    public List<User> list() { return store.findAll(); }
+    public List<User> list(String actorId, UserRole role) {
+        if (role == UserRole.ADMIN) return store.findAll();
+        return store.findById(actorId)
+                .map(List::of)
+                .orElseThrow(() -> new NotFoundException("Current user not found"));
+    }
 }

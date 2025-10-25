@@ -15,13 +15,18 @@ public class TaskService {
     private final TaskStore store;
     public TaskService(TaskStore store) { this.store = store; }
 
-    public List<Task> list(String status, String category, String assigneeId) {
+    public List<Task> list(String status, String category, String assigneeId,
+                           String actorId, UserRole role) {
+
+        String effectiveAssignee = (role == UserRole.USER) ? actorId : assigneeId;
+
         return store.findAll().stream()
                 .filter(t -> status == null || t.getStatus().name().equalsIgnoreCase(status))
                 .filter(t -> category == null || Objects.equals(t.getCategory(), category))
-                .filter(t -> assigneeId == null || Objects.equals(t.getAssigneeId(), assigneeId))
+                .filter(t -> effectiveAssignee == null || Objects.equals(t.getAssigneeId(), effectiveAssignee))
                 .collect(Collectors.toList());
     }
+
 
     public Task create(CreateTaskRequest req, String actorId, UserRole role) {
         if (role == UserRole.USER && !Objects.equals(actorId, req.assigneeId()))
@@ -45,6 +50,9 @@ public class TaskService {
             throw new ForbiddenException("Users can only modify their tasks");
         if (cur.getVersion() != req.version())
             throw new ConflictException("Version mismatch. Reload and retry.");
+        if (role == UserRole.USER && !Objects.equals(req.assigneeId(), cur.getAssigneeId())) {
+            throw new ForbiddenException("Users cannot reassign tasks to another user");
+        }
         cur.setTitle(req.title());
         cur.setDescription(req.description());
         cur.setCategory(req.category());
