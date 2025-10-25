@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trezello - Login</title>
+    <link rel="stylesheet" href="css/simple-style.css">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card">
+            <h1>Trezello</h1>
+            <p class="subtitle">Task Management System</p>
+            
+            <form id="loginForm" class="form">
+                <input type="text" id="username" placeholder="Enter your username" required>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            
+            <div id="error" class="error"></div>
+            
+            <div class="signup-link">
+                Don't have an account? <a href="#" id="showSignup">Sign up</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <h2>Create Account</h2>
+            <form id="signupForm" class="form">
+                <input type="text" id="signupUsername" placeholder="Choose a username" required>
+                <select id="signupRole" required>
+                    <option value="USER">User</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+                <div class="modal-buttons">
+                    <button type="button" id="cancelSignup" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script type="module" src="js/simple-login.js"></script>
+</body>
+</html>

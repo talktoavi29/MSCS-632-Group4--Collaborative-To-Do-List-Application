@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trezello - Dashboard</title>
+    <link rel="stylesheet" href="css/simple-style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>Trezello</h1>
+            <div class="user-info">
+                <span id="userName"></span>
+                <span id="userRole" class="badge"></span>
+                <button id="logoutBtn" class="btn-secondary">Logout</button>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main">
+            <div class="toolbar">
+                <h2>My Tasks</h2>
+                <button id="newTaskBtn" class="btn-primary">+ New Task</button>
+            </div>
+            
+            <div id="taskList" class="task-list"></div>
+        </main>
+    </div>
+    
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">New Task</h2>
+            <form id="taskForm" class="form">
+                <input type="hidden" id="taskId">
+                <input type="hidden" id="taskVersion">
+                
+                <input type="text" id="taskTitle" placeholder="Task title" required>
+                <textarea id="taskDescription" placeholder="Description (optional)" rows="3"></textarea>
+                <input type="text" id="taskCategory" placeholder="Category" required>
+                
+                <select id="taskStatus">
+                    <option value="PENDING">Pending</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="DONE">Done</option>
+                </select>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancelTask" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script type="module" src="js/simple-app.js"></script>
+</body>
+</html>

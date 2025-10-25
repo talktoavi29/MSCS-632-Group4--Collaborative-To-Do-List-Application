@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock API Test - Trezello</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 { color: #0079bf; }
+        h2 { color: #333; border-bottom: 2px solid #0079bf; padding-bottom: 10px; }
+        button {
+            background: #0079bf;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #026aa7; }
+        .result {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-top: 10px;
+            border-left: 4px solid #0079bf;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error { border-left-color: #eb5a46; color: #eb5a46; }
+        .success { border-left-color: #5aac44; color: #5aac44; }
+        .credentials {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .credentials h3 { margin-top: 0; color: #0079bf; }
+        .credentials ul { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Trezello Mock API Test</h1>
+    
+    <div class="test-section">
+        <div class="credentials">
+            <h3>Test Credentials</h3>
+            <ul>
+                <li><strong>Admin:</strong> username: <code>admin</code>, password: <code>admin123</code></li>
+                <li><strong>User 1:</strong> username: <code>john</code>, password: <code>john123</code></li>
+                <li><strong>User 2:</strong> username: <code>jane</code>, password: <code>jane123</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>1. Test User Login</h2>
+        <button onclick="testLogin('admin', 'admin123')">Login as Admin</button>
+        <button onclick="testLogin('john', 'john123')">Login as John</button>
+        <button onclick="testLogin('jane', 'jane123')">Login as Jane</button>
+        <button onclick="testLogin('wrong', 'wrong')">Test Wrong Credentials</button>
+        <div id="loginResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test User Signup</h2>
+        <button onclick="testSignup()">Create New User</button>
+        <div id="signupResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Get All Tasks</h2>
+        <button onclick="testGetTasks()">Get All Tasks</button>
+        <div id="tasksResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Clear All Mock Data</h2>
+        <button onclick="clearMockData()" style="background: #eb5a46;">Clear & Reset Mock Data</button>
+        <div id="clearResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Go to Application</h2>
+        <a href="/login.html"><button>Open Login Page</button></a>
+        <a href="/"><button>Open Main App</button></a>
+    </div>
+
+    <script type="module">
+        import { mockUserAPI, mockTaskAPI } from './js/mockApi.js';
+        
+        window.testLogin = async (username, password) => {
+            const result = document.getElementById('loginResult');
+            result.style.display = 'block';
+            result.textContent = 'Testing login...';
+            result.className = 'result';
+            
+            try {
+                const user = await mockUserAPI.login(username, password);
+                result.className = 'result success';
+                result.textContent = '✓ Login successful!\n\n' + JSON.stringify(user, null, 2);
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = '✗ Login failed!\n\n' + JSON.stringify(error, null, 2);
+            }
+        };
+        
+        window.testSignup = async () => {
+            const result = document.getElementById('signupResult');
+            result.style.display = 'block';
+            result.textContent = 'Creating new user...';
+            result.className = 'result';
+            
+            const username = 'testuser_' + Date.now();
+            const password = 'test123';
+            
+            try {
+                const user = await mockUserAPI.create(username, password);
+                result.className = 'result success';
+                result.textContent = '✓ User created successfully!\n\nUsername: ' + username + '\nPassword: ' + password + '\n\n' + JSON.stringify(user, null, 2);
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = '✗ Signup failed!\n\n' + JSON.stringify(error, null, 2);
+            }
+        };
+        
+        window.testGetTasks = async () => {
+            const result = document.getElementById('tasksResult');
+            result.style.display = 'block';
+            result.textContent = 'Fetching tasks...';
+            result.className = 'result';
+            
+            try {
+                const tasks = await mockTaskAPI.getAll();
+                result.className = 'result success';
+                result.textContent = '✓ Found ' + tasks.length + ' tasks!\n\n' + JSON.stringify(tasks, null, 2);
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = '✗ Failed to get tasks!\n\n' + JSON.stringify(error, null, 2);
+            }
+        };
+        
+        window.clearMockData = () => {
+            const result = document.getElementById('clearResult');
+            result.style.display = 'block';
+            
+            localStorage.removeItem('mock_users');
+            localStorage.removeItem('mock_tasks');
+            localStorage.removeItem('currentUser');
+            
+            result.className = 'result success';
+            result.textContent = '✓ All mock data cleared!\n\nRefresh the page to reinitialize with default data.';
+        };
+        
+        console.log('Mock API test page loaded');
+        console.log('Default test users available:');
+        console.log('- admin / admin123');
+        console.log('- john / john123');
+        console.log('- jane / jane123');
+    </script>
+</body>
+</html>
