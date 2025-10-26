@@ -7,7 +7,7 @@ public record UpdateTaskRequest(
         @NotBlank String title,
         String description,
         @NotBlank String category,
-        @NotBlank String assigneeId,
+        String assigneeId,
         TaskStatus status,
         int version
 ) {}
