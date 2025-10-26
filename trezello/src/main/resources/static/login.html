@@ -13,68 +13,92 @@
     .auth-wrap input{background:white;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:16px}
     .row{display:flex;gap:10px}
     .muted{color:var(--muted);font-size:14px}
+    button{cursor:pointer}
   </style>
 </head>
 <body>
   <div class="auth-wrap">
-    <h1>Sign in</h1>
-    <form id="loginForm">
-      <input name="username" placeholder="Username" required />
-      <input name="password" placeholder="Password" type="password" required />
-      <div class="row">
-        <button class="primary" type="submit">Login</button>
-        <button id="go-signup" type="button" class="secondary">Need an account?</button>
-      </div>
-      <div class="muted">Admins cannot be created via signup.</div>
-    </form>
+    <!-- LOGIN SECTION -->
+    <section id="loginSection">
+      <h1>Sign in</h1>
+      <form id="loginForm">
+        <input name="username" placeholder="Username" autocomplete="username" required />
+        <input name="password" placeholder="Password" type="password" autocomplete="current-password" required />
+        <div class="row">
+          <button class="primary" type="submit">Login</button>
+          <button id="go-signup" type="button" class="secondary">Need an account?</button>
+        </div>
+        <div class="muted">Admins cannot be created via signup.</div>
+      </form>
+    </section>
 
-    <div id="signup" style="display:none;margin-top:18px">
+    <!-- SIGNUP SECTION -->
+    <section id="signupSection" style="display:none">
       <h1>Create account</h1>
       <form id="signupForm">
-        <input name="username" placeholder="Username" required />
-        <input name="password" placeholder="Password" type="password" required />
+        <input name="username" placeholder="Username" autocomplete="username" required />
+        <input name="password" placeholder="Password" type="password" autocomplete="new-password" required />
         <div class="row">
           <button class="primary" type="submit">Sign up</button>
           <button id="go-login" type="button" class="secondary">Back to login</button>
         </div>
       </form>
-    </div>
+    </section>
   </div>
 
-  <script type="module">
-    async function req(path, body){
-      const r = await fetch(path, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  <script>
+    // tiny helper
+    async function postJson(path, body){
+      const r = await fetch(path, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
       const text = await r.text();
-      if (!r.ok) throw new Error((text && JSON.parse(text).error) || r.statusText);
+      if (!r.ok) {
+        let msg = r.statusText;
+        try { msg = JSON.parse(text).error || msg; } catch {}
+        throw new Error(msg);
+      }
       return text ? JSON.parse(text) : null;
     }
 
-    const loginForm  = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
+    window.addEventListener('DOMContentLoaded', () => {
+      const loginSection  = document.getElementById('loginSection');
+      const signupSection = document.getElementById('signupSection');
+      const loginForm     = document.getElementById('loginForm');
+      const signupForm    = document.getElementById('signupForm');
+      const goSignupBtn   = document.getElementById('go-signup');
+      const goLoginBtn    = document.getElementById('go-login');
 
-    document.getElementById('go-signup').onclick = () => { document.getElementById('signup').style.display='block'; loginForm.parentElement.style.display='none'; };
-    document.getElementById('go-login').onclick  = () => { document.getElementById('signup').style.display='none'; loginForm.parentElement.style.display='block'; };
+      // robust toggles
+      const showLogin  = () => { loginSection.style.display = '';   signupSection.style.display = 'none'; };
+      const showSignup = () => { loginSection.style.display = 'none'; signupSection.style.display = '';   };
 
-    loginForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const fd = new FormData(loginForm);
-      try {
-        const user = await req('/auth/login', Object.fromEntries(fd));
-        localStorage.setItem('trezello.user', JSON.stringify(user));  // {id, username, role}
-        location.href = '/';
-      } catch (err){ alert(err.message); }
-    };
+      goSignupBtn.addEventListener('click', (e) => { e.preventDefault(); showSignup(); });
+      goLoginBtn.addEventListener('click',  (e) => { e.preventDefault(); showLogin();  });
 
-    signupForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const fd = new FormData(signupForm);
-      try {
-        const user = await req('/auth/signup', Object.fromEntries(fd));
-        alert('Account created. You are now signed in.');
-        localStorage.setItem('trezello.user', JSON.stringify(user));
-        location.href = '/';
-      } catch (err){ alert(err.message); }
-    };
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(loginForm);
+        try {
+          const user = await postJson('/auth/login', Object.fromEntries(fd));
+          localStorage.setItem('trezello.user', JSON.stringify(user));  // {id, username, role}
+          location.href = '/';
+        } catch (err) { alert(err.message); }
+      });
+
+      signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(signupForm);
+        try {
+          const user = await postJson('/auth/signup', Object.fromEntries(fd));
+          alert('Account created. You are now signed in.');
+          localStorage.setItem('trezello.user', JSON.stringify(user));
+          location.href = '/';
+        } catch (err) { alert(err.message); }
+      });
+    });
   </script>
 </body>
 </html>

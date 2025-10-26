@@ -1,6 +1,7 @@
 package com.mscs632.trezello.controller;
 
 import com.mscs632.trezello.dto.CreateUserRequest;
+import com.mscs632.trezello.dto.UserPublic;
 import com.mscs632.trezello.model.User;
 import com.mscs632.trezello.model.UserRole;
 import com.mscs632.trezello.service.UserService;
@@ -23,9 +24,14 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> list(@RequestHeader("X-User-Id") String userId,
-                           @RequestHeader("X-Role") String role) {
-        return service.list(userId, UserRole.valueOf(role.toUpperCase()));
+    public List<UserPublic> list(@RequestHeader("X-User-Id") String userId) {
+        UserRole role = service.resolveRole(userId);
+        List<User> userList = service.list(userId, role);
+        return userList.stream()
+                .map(u -> new UserPublic(u.getId(), u.getUsername(),
+                        UserRole.valueOf(u.getRole().toUpperCase())))
+                .toList();
     }
+
 
 }
