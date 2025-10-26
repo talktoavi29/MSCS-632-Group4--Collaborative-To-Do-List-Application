@@ -31,4 +31,11 @@ public class UserService {
                 .map(List::of)
                 .orElseThrow(() -> new NotFoundException("Current user not found"));
     }
+
+    public UserRole resolveRole(String userId) {
+        return store.findById(userId)
+                .map(u -> UserRole.valueOf(u.getRole().toUpperCase()))
+                .orElse(UserRole.USER);
+    }
+
 }

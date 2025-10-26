@@ -18,7 +18,7 @@ public class AuthService {
     private final BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
 
     public AuthService(UserStore users) { this.users = users; }
-    
+
     public AuthResponse signup(SignupRequest req) {
         String username = req.username().trim();
         if (username.isEmpty()) throw new BadRequestException("Username required");

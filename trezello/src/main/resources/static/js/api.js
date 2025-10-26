@@ -3,7 +3,7 @@ async function request(method, path, body) {
     const { id, role } = State.currentUser;
     const res = await fetch(path, {
         method,
-        headers: { 'Content-Type': 'application/json', 'X-User-Id': id, 'X-Role': role },
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': id },
         body: body ? JSON.stringify(body) : undefined
     });
     if (!res.ok) {
