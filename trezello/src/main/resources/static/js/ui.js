@@ -20,21 +20,26 @@ export const UI = {
       <section class="pane tasks">
         ${selectedUser
             ? `
-            <div class="title">TASKS — ${selectedUser.username}</div>
+            <div class="title">TASKS ${escapeHtml(selectedUser.username)}</div>
             ${this.createForm(selectedUser.id, isAdmin)}
-            ${State.tasks.length ? `<div class="list-tasks">${State.tasks.map(t => this.taskItem(t)).join('')}</div>`
-                : `<div class="empty">No tasks for ${selectedUser.username}.</div>`}
+            ${State.tasks.length
+                ? `<div class="list-tasks">${State.tasks.map(t => this.taskItem(t)).join('')}</div>`
+                : `<div class="empty">No tasks for ${escapeHtml(selectedUser.username)}.</div>`}
           `
             : `<div class="empty">Select a user to view tasks.</div>`}
       </section>
 
       <section class="pane detail">
-        ${selectedTask ? this.taskDetail(selectedTask, isAdmin) : `<div class="empty">Select a task to view details.</div>`}
+        ${selectedTask
+            ? this.taskDetail(selectedTask, isAdmin)
+            : `<div class="empty">Select a task to view details.</div>`}
       </section>
     `;
+        // User selection
         this.root.querySelectorAll('.users .item').forEach(li => {
             li.onclick = () => this.handlers.selectUser?.(li.dataset.id);
         });
+        // Create form
         const cf = this.root.querySelector('#create-task-form');
         if (cf) {
             cf.onsubmit = e => {
@@ -50,9 +55,11 @@ export const UI = {
                 cf.reset();
             };
         }
+        // Task selection
         this.root.querySelectorAll('.task').forEach(div => {
             div.onclick = () => this.handlers.selectTask?.(div.dataset.id);
         });
+        // Edit form
         const ef = this.root.querySelector('#edit-task-form');
         if (ef) {
             ef.onsubmit = e => {
@@ -61,17 +68,23 @@ export const UI = {
                 const body = Object.fromEntries(fd);
                 const id = body.id;
                 const version = parseInt(body.version, 10);
+                // Defensive fallback for assigneeId
+                const current = State.selectedTask;
+                const assigneeId = body.assigneeId ??
+                    current?.assigneeId ??
+                    State.selectedUserId;
                 const payload = {
                     title: (body.title || '').trim(),
                     category: (body.category || '').trim(),
                     description: (body.description || '').trim() || undefined,
-                    assigneeId: body.assigneeId,
-                    status: body.status,
+                    assigneeId,
+                    status: body.status || undefined,
                     version
                 };
                 this.handlers.updateTask?.(id, payload);
             };
         }
+        // Complete button
         const completeBtn = this.root.querySelector('#btn-complete');
         if (completeBtn) {
             completeBtn.onclick = () => {
@@ -80,6 +93,7 @@ export const UI = {
                 this.handlers.completeTask?.(id, version);
             };
         }
+        // Delete button
         const deleteBtn = this.root.querySelector('#btn-delete');
         if (deleteBtn) {
             deleteBtn.onclick = () => {
@@ -92,15 +106,15 @@ export const UI = {
     userItem(u) {
         const active = u.id === State.selectedUserId ? 'active' : '';
         return `<li class="item ${active}" data-id="${u.id}">
-      <span>${u.username}</span>
+      <span>${escapeHtml(u.username)}</span>
       <span class="badge">${u.role}</span>
     </li>`;
     },
     taskItem(t) {
         const active = t.id === State.selectedTaskId ? 'active' : '';
         return `<div class="task ${active}" data-id="${t.id}">
-      <div class="t1">${t.title}</div>
-      <div class="t2">${t.category} • ${t.status}</div>
+      <div class="t1">${escapeHtml(t.title)}</div>
+      <div class="t2">${escapeHtml(t.category || '')} • ${t.status}</div>
       <div class="chips">
         <span class="chip">v${t.version}</span>
         <span class="chip">${new Date(t.updatedAt).toLocaleString()}</span>
@@ -110,24 +124,34 @@ export const UI = {
     createForm(defaultAssignee, isAdmin) {
         const assigneeCtrl = isAdmin
             ? `<select name="assigneeId">
-         ${State.users.map(u => `<option value="${u.id}" ${u.id === defaultAssignee ? 'selected' : ''}>${u.username}</option>`).join('')}
-       </select>`
+           ${State.users.map(u => `
+             <option value="${u.id}" ${u.id === defaultAssignee ? 'selected' : ''}>
+               ${escapeHtml(u.username)}
+             </option>`).join('')}
+         </select>`
             : `<input name="assigneeId" type="hidden" value="${defaultAssignee}" />`;
         return `
-    <form id="create-task-form" class="form">
-      <input name="title" placeholder="New task title" required />
-      <input name="category" placeholder="Category" />
-      <input name="description" placeholder="Description" />
-      ${assigneeCtrl}
-      <button class="primary">Create</button>
-    </form>
-  `;
+      <form id="create-task-form" class="form">
+        <input name="title" placeholder="New task title" required />
+        <input name="category" placeholder="Category" />
+        <input name="description" placeholder="Description" />
+        ${assigneeCtrl}
+        <button class="primary">Create</button>
+      </form>
+    `;
     },
     taskDetail(t, isAdmin) {
-        // Admins can edit assignee; Users cannot (server also enforces)
+        // Admins may edit assignee; Users cannot. For users, include hidden field so value submits.
         const assigneeInput = isAdmin
             ? `<input name="assigneeId" value="${t.assigneeId}" />`
-            : `<input name="assigneeId" value="${t.assigneeId}" disabled />`;
+            : `
+         <input name="assigneeId" value="${t.assigneeId}" readonly />
+         <input type="hidden" name="assigneeId" value="${t.assigneeId}" />
+        `;
+        // Ensure status options align with backend: PENDING, IN_PROGRESS, COMPLETED
+        const statusOptions = ['PENDING', 'IN_PROGRESS', 'COMPLETED']
+            .map(s => `<option value="${s}" ${s === t.status ? 'selected' : ''}>${s}</option>`)
+            .join('');
         return `
       <div class="detail">
         <h2>Edit Task</h2>
@@ -145,8 +169,8 @@ export const UI = {
           <textarea name="description" rows="3">${escapeHtml(t.description || '')}</textarea>
 
           <label>Status</label>
-          <select name="status" value="${t.status}">
-            ${['PENDING', 'IN_PROGRESS', 'COMPLETED'].map(s => `<option value="${s}" ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}
+          <select name="status">
+            ${statusOptions}
           </select>
 
           <label>Assignee</label>
@@ -154,7 +178,9 @@ export const UI = {
 
           <div class="btns">
             <button class="primary" type="submit">Save</button>
-            <button id="btn-complete" type="button" class="secondary" data-id="${t.id}" data-version="${t.version}">Mark Completed</button>
+            <button id="btn-complete" type="button" class="secondary" data-id="${t.id}" data-version="${t.version}">
+              Mark Completed
+            </button>
             ${isAdmin ? `<button id="btn-delete" type="button" class="danger" data-id="${t.id}">Delete</button>` : ''}
           </div>
         </form>
@@ -169,4 +195,6 @@ export const UI = {
     `;
     }
 };
-function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}

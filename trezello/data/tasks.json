@@ -1,13 +1,13 @@
 [ {
   "id" : "fab6e747-7535-43a3-a05a-bd5fc15d5537",
   "title" : "Study Math",
-  "description" : "Kids Duty",
+  "description" : "Kids Duty. Learning Math is fun!!",
   "status" : "PENDING",
   "category" : "Growth",
   "assigneeId" : "a51eba5d-db11-4a35-99d2-e35b04796b88",
-  "version" : 1,
+  "version" : 2,
   "createdAt" : "2025-10-25T16:48:11.330382Z",
-  "updatedAt" : "2025-10-25T16:48:11.330382Z"
+  "updatedAt" : "2025-10-26T04:31:52.165440500Z"
 }, {
   "id" : "1d421bbb-77a5-486d-a6b7-78a1daca1c06",
   "title" : "Build Backend",

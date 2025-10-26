@@ -5,6 +5,7 @@ import com.mscs632.trezello.exception.*;
 import com.mscs632.trezello.model.*;
 import com.mscs632.trezello.store.TaskStore;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -46,22 +47,30 @@ public class TaskService {
 
     public Task update(String id, UpdateTaskRequest req, String actorId, UserRole role) {
         Task cur = store.findById(id).orElseThrow(() -> new NotFoundException("Task not found"));
-        if (role == UserRole.USER && !Objects.equals(actorId, cur.getAssigneeId()))
+        if (role == UserRole.USER && !actorId.equals(cur.getAssigneeId()))
             throw new ForbiddenException("Users can only modify their tasks");
         if (cur.getVersion() != req.version())
             throw new ConflictException("Version mismatch. Reload and retry.");
-        if (role == UserRole.USER && !Objects.equals(req.assigneeId(), cur.getAssigneeId())) {
-            throw new ForbiddenException("Users cannot reassign tasks to another user");
-        }
+
         cur.setTitle(req.title());
         cur.setDescription(req.description());
         cur.setCategory(req.category());
-        if (req.status() != null) cur.setStatus(req.status());
-        cur.setAssigneeId(req.assigneeId());
-        cur.setVersion(cur.getVersion()+1);
+
+        if (role == UserRole.ADMIN) {
+            if (req.assigneeId() != null && !req.assigneeId().isBlank()) {
+                cur.setAssigneeId(req.assigneeId());
+            }
+        } else {
+            cur.setAssigneeId(cur.getAssigneeId());
+        }
+        if (req.status() != null) {
+            cur.setStatus(req.status());
+        }
+        cur.setVersion(cur.getVersion() + 1);
         cur.setUpdatedAt(Instant.now().toString());
         return store.upsert(cur);
     }
+
 
     public Task complete(String id, int version, String actorId, UserRole role) {
         Task cur = store.findById(id).orElseThrow(() -> new NotFoundException("Task not found"));
