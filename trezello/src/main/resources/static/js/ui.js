@@ -20,7 +20,7 @@ export const UI = {
       <section class="pane tasks">
         ${selectedUser
             ? `
-            <div class="title">TASKS - ${selectedUser.username}</div>
+            <div class="title">TASKS — ${selectedUser.username}</div>
             ${this.createForm(selectedUser.id, isAdmin)}
             ${State.tasks.length ? `<div class="list-tasks">${State.tasks.map(t => this.taskItem(t)).join('')}</div>`
                 : `<div class="empty">No tasks for ${selectedUser.username}.</div>`}
